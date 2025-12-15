@@ -15,7 +15,7 @@ This process involves modifying printer "G-code", disabling safety sensors, and 
 
 ## **Prerequisites: Printed Parts & Tools**
 
-Before starting the testing phases, ensure you have these files printed from the [Falu Modular System on MakerWorld](https://www.google.com/search?q=https://makerworld.com/en/models/2029113-modular-system-for-a1-p1-x1-series):
+Before starting the testing phases, ensure you have these files printed from the [Falu Modular System on MakerWorld](https://makerworld.com/en/models/2029113-modular-system-for-a1-p1-x1-series):
 
 1. Head-Mount-V1-Series X and Series P.stl (Base clip)  
 2. Spring Module D9 5mm.stl (Compliance mechanism)  
