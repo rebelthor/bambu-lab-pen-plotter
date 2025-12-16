@@ -92,193 +92,195 @@ Go to the **Machine G-code** tab.
 
 * Replace the **entire block** with the following code. This ensures the printer initializes safely and pauses for you to attach the pen.
 ```
-  ;===== machine: P1S \====================  
-  ;===== date: 20240919 \==================  
-  ;===== start printer sound \================  
-  M17  
-  M400 S1  
-  M1006 S1  
-  M1006 A0 B10 L100 C37 D10 M60 E37 F10 N60  
-  M1006 A0 B10 L100 C41 D10 M60 E41 F10 N60  
-  M1006 A0 B10 L100 C44 D10 M60 E44 F10 N60  
-  M1006 A0 B10 L100 C0 D10 M60 E0 F10 N60  
-  M1006 A46 B10 L100 C43 D10 M70 E39 F10 N100  
-  M1006 A0 B10 L100 C0 D10 M60 E0 F10 N100  
-  M1006 A43 B10 L100 C0 D10 M60 E39 F10 N100  
-  M1006 A0 B10 L100 C0 D10 M60 E0 F10 N100  
-  M1006 A41 B10 L100 C0 D10 M100 E41 F10 N100  
-  M1006 A44 B10 L100 C0 D10 M100 E44 F10 N100  
-  M1006 A49 B10 L100 C0 D10 M100 E49 F10 N100  
-  M1006 A0 B10 L100 C0 D10 M100 E0 F10 N100  
-  M1006 A48 B10 L100 C44 D10 M60 E39 F10 N100  
-  M1006 A0 B10 L100 C0 D10 M60 E0 F10 N100  
-  M1006 A44 B10 L100 C0 D10 M90 E39 F10 N100  
-  M1006 A0 B10 L100 C0 D10 M60 E0 F10 N100  
-  M1006 A46 B10 L100 C43 D10 M60 E39 F10 N100  
-  M1006 W
+;===== machine: P1S ====================
+;===== date: 20240919 ==================
+;===== start printer sound ================
+M17
+M400 S1
+M1006 S1
+M1006 A0 B10 L100 C37 D10 M60 E37 F10 N60
+M1006 A0 B10 L100 C41 D10 M60 E41 F10 N60
+M1006 A0 B10 L100 C44 D10 M60 E44 F10 N60
+M1006 A0 B10 L100 C0 D10 M60 E0 F10 N60
+M1006 A46 B10 L100 C43 D10 M70 E39 F10 N100
+M1006 A0 B10 L100 C0 D10 M60 E0 F10 N100
+M1006 A43 B10 L100 C0 D10 M60 E39 F10 N100
+M1006 A0 B10 L100 C0 D10 M60 E0 F10 N100
+M1006 A41 B10 L100 C0 D10 M100 E41 F10 N100
+M1006 A44 B10 L100 C0 D10 M100 E44 F10 N100
+M1006 A49 B10 L100 C0 D10 M100 E49 F10 N100
+M1006 A0 B10 L100 C0 D10 M100 E0 F10 N100
+M1006 A48 B10 L100 C44 D10 M60 E39 F10 N100
+M1006 A0 B10 L100 C0 D10 M60 E0 F10 N100
+M1006 A44 B10 L100 C0 D10 M90 E39 F10 N100
+M1006 A0 B10 L100 C0 D10 M60 E0 F10 N100
+M1006 A46 B10 L100 C43 D10 M60 E39 F10 N100
+M1006 W
 
-  ;===== reset machine status \=================  
-  M290 X40 Y40 Z2.6666666  
-  G91  
-  M17 Z0.4 ; lower the z-motor current  
-  G380 S2 Z30 F300 ; G380 is same as G38; lower the hotbed , to prevent the nozzle is below the hotbed  
-  G380 S2 Z-25 F300 ;  
-  G1 Z5 F300;  
-  G90  
-  M17 X1.2 Y1.2 Z0.75 ; reset motor current to default  
-  M960 S5 P1 ; turn on logo lamp  
-  G90  
-  M220 S100 ;Reset Feedrate  
-  M221 S100 ;Reset Flowrate  
-  M73.2   R1.0 ;Reset left time magnitude  
-  M1002 set\_gcode\_claim\_speed\_level : 5  
-  M221 X0 Y0 Z0 ; turn off soft endstop to prevent protential logic problem  
-  G29.1 Z{+0.0} ; clear z-trim value first  
-  M204 S10000 ; init ACC set to 10m/s^2
+;===== reset machine status =================
+M290 X40 Y40 Z2.6666666
+G91
+M17 Z0.4 ; lower the z-motor current
+G380 S2 Z30 F300 ; G380 is same as G38; lower the hotbed , to prevent the nozzle is below the hotbed
+G380 S2 Z-25 F300 ;
+G1 Z5 F300;
+G90
+M17 X1.2 Y1.2 Z0.75 ; reset motor current to default
+M960 S5 P1 ; turn on logo lamp
+G90
+M220 S100 ;Reset Feedrate
+M221 S100 ;Reset Flowrate
+M73.2   R1.0 ;Reset left time magnitude
+M1002 set_gcode_claim_speed_level : 5
+M221 X0 Y0 Z0 ; turn off soft endstop to prevent protential logic problem
+G29.1 Z{+0.0} ; clear z-trim value first
+M204 S10000 ; init ACC set to 10m/s^2
 
-  ;===== wipe nozzle \===============================  
-  M1002 gcode\_claim\_action : 14  
-  M975 S1  
-  M106 S255  
-  G1 X65 Y230 F18000  
-  G1 Y264 F6000  
-  M109 S{nozzle\_temperature\_initial\_layer\[initial\_no\_support\_extruder\]-20}  
-  G1 X100 F18000 ; first wipe mouth
+;===== wipe nozzle ===============================
+M1002 gcode_claim_action : 14
+M975 S1
+M106 S255
+G1 X65 Y230 F18000
+G1 Y264 F6000
+M109 S{nozzle_temperature_initial_layer[initial_no_support_extruder]-20}
+G1 X100 F18000 ; first wipe mouth
 
-  G0 X135 Y253 F20000  ; move to exposed steel surface edge  
-  G28 Z P0 T300; home z with low precision,permit 300deg temperature  
-  G29.2 S0 ; turn off ABL  
-  G0 Z5 F20000
+G0 X135 Y253 F20000  ; move to exposed steel surface edge
+G28 Z P0 T300; home z with low precision,permit 300deg temperature
+G29.2 S0 ; turn off ABL
+G0 Z5 F20000
 
-  G1 X60 Y265  
-  G92 E0  
-  G1 E-0.5 F300 ; retrack more  
-  G1 X100 F5000; second wipe mouth  
-  G1 X70 F15000  
-  G1 X100 F5000  
-  G1 X70 F15000  
-  G1 X100 F5000  
-  G1 X70 F15000  
-  G1 X100 F5000  
-  G1 X70 F15000  
-  G1 X90 F5000  
-  G0 X128 Y261 Z-1.5 F20000  ; move to exposed steel surface and stop the nozzle  
-  M104 S140 ; set temp down to heatbed acceptable  
-  M106 S255 ; turn on fan (G28 has turn off fan)
+G1 X60 Y265
+G92 E0
+G1 E-0.5 F300 ; retrack more
+G1 X100 F5000; second wipe mouth
+G1 X70 F15000
+G1 X100 F5000
+G1 X70 F15000
+G1 X100 F5000
+G1 X70 F15000
+G1 X100 F5000
+G1 X70 F15000
+G1 X90 F5000
+G0 X128 Y261 Z-1.5 F20000  ; move to exposed steel surface and stop the nozzle
+M104 S140 ; set temp down to heatbed acceptable
+M106 S255 ; turn on fan (G28 has turn off fan)
 
-  M221 S; push soft endstop status  
-  M221 Z0 ;turn off Z axis endstop  
-  G0 Z0.5 F20000  
-  G0 X125 Y259.5 Z-1.01  
-  G0 X131 F211  
-  G0 X124  
-  G0 Z0.5 F20000  
-  G0 X125 Y262.5  
-  G0 Z-1.01  
-  G0 X131 F211  
-  G0 X124  
-  G0 Z0.5 F20000  
-  G0 X125 Y260.0  
-  G0 Z-1.01  
-  G0 X131 F211  
-  G0 X124  
-  G0 Z0.5 F20000  
-  G0 X125 Y262.0  
-  G0 Z-1.01  
-  G0 X131 F211  
-  G0 X124  
-  G0 Z0.5 F20000  
-  G0 X125 Y260.5  
-  G0 Z-1.01  
-  G0 X131 F211  
-  G0 X124  
-  G0 Z0.5 F20000  
-  G0 X125 Y261.5  
-  G0 Z-1.01  
-  G0 X131 F211  
-  G0 X124  
-  G0 Z0.5 F20000  
-  G0 X125 Y261.0  
-  G0 Z-1.01  
-  G0 X131 F211  
-  G0 X124  
-  G0 X128  
-  G2 I0.5 J0 F300  
-  G2 I0.5 J0 F300  
-  G2 I0.5 J0 F300  
-  G2 I0.5 J0 F300
+M221 S; push soft endstop status
+M221 Z0 ;turn off Z axis endstop
+G0 Z0.5 F20000
+G0 X125 Y259.5 Z-1.01
+G0 X131 F211
+G0 X124
+G0 Z0.5 F20000
+G0 X125 Y262.5
+G0 Z-1.01
+G0 X131 F211
+G0 X124
+G0 Z0.5 F20000
+G0 X125 Y260.0
+G0 Z-1.01
+G0 X131 F211
+G0 X124
+G0 Z0.5 F20000
+G0 X125 Y262.0
+G0 Z-1.01
+G0 X131 F211
+G0 X124
+G0 Z0.5 F20000
+G0 X125 Y260.5
+G0 Z-1.01
+G0 X131 F211
+G0 X124
+G0 Z0.5 F20000
+G0 X125 Y261.5
+G0 Z-1.01
+G0 X131 F211
+G0 X124
+G0 Z0.5 F20000
+G0 X125 Y261.0
+G0 Z-1.01
+G0 X131 F211
+G0 X124
+G0 X128
+G2 I0.5 J0 F300
+G2 I0.5 J0 F300
+G2 I0.5 J0 F300
+G2 I0.5 J0 F300
 
-  M109 S140 ; wait nozzle temp down to heatbed acceptable  
-  G2 I0.5 J0 F3000  
-  G2 I0.5 J0 F3000  
-  G2 I0.5 J0 F3000  
-  G2 I0.5 J0 F3000
+M109 S140 ; wait nozzle temp down to heatbed acceptable
+G2 I0.5 J0 F3000
+G2 I0.5 J0 F3000
+G2 I0.5 J0 F3000
+G2 I0.5 J0 F3000
 
-  M221 R; pop softend status  
-  G1 Z10 F1200  
-  M400  
-  G1 Z10  
-  G1 F30000  
-  G1 X128 Y128  
-  G29.2 S1 ; turn on ABL  
-  ;G28 ; home again after hard wipe mouth  
-  M106 S0 ; turn off fan , too noisy  
-  ;===== wipe nozzle end \================================
+M221 R; pop softend status
+G1 Z10 F1200
+M400
+G1 Z10
+G1 F30000
+G1 X128 Y128
+G29.2 S1 ; turn on ABL
+;G28 ; home again after hard wipe mouth
+M106 S0 ; turn off fan , too noisy
+;===== wipe nozzle end ================================
 
-  ;===== bed leveling \==================================  
-  M1002 judge\_flag g29\_before\_print\_flag  
-  M622 J1
+;===== bed leveling ==================================
+M1002 judge_flag g29_before_print_flag
+M622 J1
 
-     M1002 gcode\_claim\_action : 1  
-    G29 A X{first\_layer\_print\_min\[0\]} Y{first\_layer\_print\_min\[1\]} I{first\_layer\_print\_size\[0\]} J{first\_layer\_print\_size\[1\]}  
-    M400  
-    M500 ; save cali data
+   M1002 gcode_claim_action : 1
+  G29 A X{first_layer_print_min[0]} Y{first_layer_print_min[1]} I{first_layer_print_size[0]} J{first_layer_print_size[1]}
+  M400
+  M500 ; save cali data
 
-  M623  
-  ;===== bed leveling end \================================  
-  ;===== mech mode fast check============================  
-  G1 X128 Y128 Z10 F20000  
-  M400 P200  
-  M970.3 Q1 A7 B30 C80  H15 K0  
-  M974 Q1 S2 P0
+M623
+;===== bed leveling end ================================
+;===== mech mode fast check============================
+G1 X128 Y128 Z10 F20000
+M400 P200
+M970.3 Q1 A7 B30 C80  H15 K0
+M974 Q1 S2 P0
 
-  G1 X128 Y128 Z10 F20000  
-  M400 P200  
-  M970.3 Q0 A7 B30 C90 Q0 H15 K0  
-  M974 Q0 S2 P0
+G1 X128 Y128 Z10 F20000
+M400 P200
+M970.3 Q0 A7 B30 C90 Q0 H15 K0
+M974 Q0 S2 P0
 
-  M975 S1  
-  G1 F30000  
-  G1 X230 Y15  
-  G28 X ; re-home XY  
-  ;===== mech mode fast check============================
+M975 S1
+G1 F30000
+G1 X230 Y15
+G28 X ; re-home XY
+;===== mech mode fast check============================
 
-  {if scan\_first\_layer}  
-  ;start heatbed  scan====================================  
-  M976 S2 P1  
-  G90  
-  G1 X128 Y128 F20000  
-  M976 S3 P2  ;register void printing detection  
-  {endif}
+{if scan_first_layer}
+;start heatbed  scan====================================
+M976 S2 P1
+G90
+G1 X128 Y128 F20000
+M976 S3 P2  ;register void printing detection
+{endif}
 
-  ;========turn off light and wait extrude temperature \=============  
-  M1002 gcode\_claim\_action : 0  
-  M973 S4 ; turn off scanner  
-  M400 ; wait all motion done before implement the emprical L parameters  
-  ;M900 L500.0 ; Empirical parameters  
-  M109 S\[nozzle\_temperature\_initial\_layer\]  
-  M960 S1 P0 ; turn off laser  
-  M960 S2 P0 ; turn off laser  
-  M106 S0 ; turn off fan  
-  M106 P2 S0 ; turn off big fan  
-  M106 P3 S0 ; turn off chamber fan
+;========turn off light and wait extrude temperature =============
+M1002 gcode_claim_action : 0
+M973 S4 ; turn off scanner
+M400 ; wait all motion done before implement the emprical L parameters
+;M900 L500.0 ; Empirical parameters
+M109 S[nozzle_temperature_initial_layer]
+M960 S1 P0 ; turn off laser
+M960 S2 P0 ; turn off laser
+M106 S0 ; turn off fan
+M106 P2 S0 ; turn off big fan
+M106 P3 S0 ; turn off chamber fan
 
-  M975 S1 ; turn on mech mode supression  
-  G90  
-  M83  
-  T1000
+M975 S1 ; turn on mech mode supression
+G90 ; Ensure absolute coordinates
+G1 Z50 F3000 ; *** FORCE BED DOWN ***
+G1 X128 Y50 F6000 ; *** PARK HEAD FRONT-CENTER ***
+M83
+T1000
 
-  M400 U1 ; PAUSE FOR PEN ATTACHMENT
+M400 U1 ; PAUSE FOR PEN ATTACHMENT
 ```
 **End G-code:**
 
