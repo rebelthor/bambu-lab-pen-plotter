@@ -40,33 +40,33 @@ We must configure the slicer before touching the printer to ensure it doesn't he
 
 **Settings:**
 
-* **Flow Ratio:** 0.01
+* **Flow Ratio:** `0.01`
     - *Why needed:* The plotter uses a pen instead of extruding plastic. This near-zero value prevents the extruder motor from attempting to push filament while still keeping the extrusion system "active" in firmware.
 
-    - *Effect:* Values above 0.01 would cause the extruder motor to grind filament unnecessarily. A value of 0 might trigger firmware safety checks or disable features that depend on active extrusion.
+    - *Effect:* Values above `0.01` would cause the extruder motor to grind filament unnecessarily. A value of `0` might trigger firmware safety checks or disable features that depend on active extrusion.
 
 * **Nozzle Temperature:**
-  * **Initial Layer:** 180°C
-  * **Other Layers:** 180°C
-    - *Why needed:* Bambu Lab firmware has a "cold extrusion prevention" safety feature that blocks movement if the nozzle is below a minimum temperature (typically 170-180°C). Setting 180°C satisfies this requirement.
+  * **Initial Layer:** `180°C`
+  * **Other Layers:** `180°C`
+    - *Why needed:* Bambu Lab firmware has a "cold extrusion prevention" safety feature that blocks movement if the nozzle is below a minimum temperature (typically 170-180°C). Setting `180°C` satisfies this requirement.
 
     - *Effect:* This temperature is high enough to prevent firmware errors but low enough that no plastic will ooze or cause thermal issues. Lower temperatures would trigger "cold extrusion" errors and halt the print.
 
-* **Bed Temperature:** 25°C
+* **Bed Temperature:** `25°C`
     - *Why needed:* Room temperature prevents any unnecessary heating of the bed, saving energy and avoiding thermal expansion.
 
     - *Effect:* Higher temperatures would waste power and could warp paper. The bed doesn't need heating since we're drawing, not printing.
 
 * **Cooling Tab:**
-  * **Part Cooling Fan:** 0% (Min) / 0% (Max)
-  * **Auxiliary Fan:** 0%
-  * **Chamber Fan:** 0%
+  * **Part Cooling Fan:** `0%` (Min) / `0%` (Max)
+  * **Auxiliary Fan:** `0%`
+  * **Chamber Fan:** `0%`
     - *Why needed:* Fans create vibration and air movement that can disturb the pen tip's contact with paper, causing inconsistent line quality or paper movement.
 
     - *Effect:* Disabling all fans ensures stable, vibration-free operation. Running fans would introduce micro-vibrations that show up as wavy or inconsistent lines.
 
-* **Max volumetric speed:** 22 mm³/s
-    - *Why needed:* This setting limits how fast the firmware thinks material is being extruded. Since we're using flow ratio 0.01, this effectively caps movement speeds.
+* **Max volumetric speed:** `22 mm³/s`
+    - *Why needed:* This setting limits how fast the firmware thinks material is being extruded. Since we're using flow ratio `0.01`, this effectively caps movement speeds.
 
     - *Effect:* This value works with the flow ratio to prevent firmware from limiting speeds. Higher values have minimal impact since flow is near-zero.
 
@@ -78,29 +78,29 @@ We must configure the slicer before touching the printer to ensure it doesn't he
 #### **A. Extruder Settings**
 
 * **Extruder Tab:**
-  * **Z-Hop Type:** Normal (90° vertical lift)
+  * **Z-Hop Type:** `Normal` (90° vertical lift)
       - *Why needed:* "Normal" Z-hop lifts the toolhead straight up vertically before travel moves. This is critical because the pen must lift completely clear of the paper to avoid dragging ink between drawing segments.
 
       - *Effect:* Without Z-hop, the pen drags across the paper during travel moves, creating unwanted lines. The "Slope" or "Spiral" hop types would cause the pen to drag during the lifting motion itself.
 
-  * **Z-Hop Height:** 3.0 mm
+  * **Z-Hop Height:** `3.0 mm`
       - *Why needed:* The pen tip must clear the paper surface plus any slight paper curl or tape thickness. 3mm provides reliable clearance.
 
       - *Effect:* Too low (< 2mm) risks the pen still touching paper during travel. Too high (> 5mm) wastes time and adds unnecessary Z-axis movement.
 
-  * **Retraction Length:** 0.01 mm
-      - *Why needed:* Bambu Lab firmware requires a non-zero retraction value to enable Z-hop. Since we're not extruding plastic, the actual retraction distance is irrelevant, but it must be > 0 to unlock the Z-hop feature.
+  * **Retraction Length:** `0.01 mm`
+      - *Why needed:* Bambu Lab firmware requires a non-zero retraction value to enable Z-hop. Since we're not extruding plastic, the actual retraction distance is irrelevant, but it must be `> 0` to unlock the Z-hop feature.
 
-      - *Effect:* A value of 0 would disable Z-hop entirely. The 0.01mm value is the minimum needed to activate the feature without causing the extruder motor to work.
+      - *Effect:* A value of `0` would disable Z-hop entirely. The `0.01mm` value is the minimum needed to activate the feature without causing the extruder motor to work.
 
 #### **B. Set Z-Offset (Safety Gap)**
 
 * **Extruder/Print Options Tab:**
-  * **Z-Offset:** 17.0 mm
+  * **Z-Offset:** `17.0 mm`
       - *Why needed:* The pen tip extends approximately 17mm below where the nozzle normally sits. By adding this offset, we tell the printer to keep the "nozzle" (actually the pen holder) 17mm higher than it thinks, which places the actual pen tip at the correct drawing height.
 
       - *Effect:* This offset "tricks" the firmware into positioning the pen correctly. Without it, the toolhead would try to position the nozzle at paper level, driving the pen tip 17mm into the bed and damaging both the pen and build plate.
-    *Tuning: If lines are too faint (pen barely touching), decrease the offset slightly (e.g., 16.5mm). If the pen presses too hard, increase it (e.g., 17.5mm).*
+    *Tuning: If lines are too faint (pen barely touching), decrease the offset slightly (e.g., `16.5mm`). If the pen presses too hard, increase it (e.g., `17.5mm`).*
 
 #### **C. Set Excluded Bed Area (Safety Zones)**
 
@@ -333,99 +333,99 @@ M400 U1 ; PAUSE FOR PEN ATTACHMENT
 
 **A. Quality Settings:**
 
-* **Layer Height:** 0.10 mm
-    - *Why needed:* Since we're drawing in 2D (not building up layers), the layer height determines how the slicer interprets the model. 0.10mm ensures the model is treated as a single drawing layer.
+* **Layer Height:** `0.10 mm`
+    - *Why needed:* Since we're drawing in 2D (not building up layers), the layer height determines how the slicer interprets the model. `0.10mm` ensures the model is treated as a single drawing layer.
 
-    - *Effect:* Must match the Z-height of your imported SVG/model. If your model is 0.1mm tall, this setting ensures exactly 1 layer is generated.
+    - *Effect:* Must match the Z-height of your imported SVG/model. If your model is `0.1mm` tall, this setting ensures exactly 1 layer is generated.
 
-* **First Layer Height:** 0.10 mm
+* **First Layer Height:** `0.10 mm`
     - *Why needed:* Must match layer height for single-layer drawings.
 
     - *Effect:* Different values would cause the slicer to generate multiple layers or fail to slice properly.
 
-* **Wall Generator:** Arachne
+* **Wall Generator:** `Arachne`
     - *Why needed:* Arachne is a variable-width wall generator that handles thin features and fine details better than the classic generator. It can trace lines thinner than the nozzle diameter.
 
     - *Effect:* The classic generator ignores features narrower than the nozzle width. Arachne will attempt to draw them, making it essential for detailed line art.
 
-* **Min Wall Width:** 50% (or 0.2mm)
-    - *Why needed:* This tells Arachne the minimum line width to attempt drawing. At 50% of a 0.4mm nozzle (0.2mm), it will trace even very fine SVG lines.
+* **Min Wall Width:** `50%` (or `0.2mm`)
+    - *Why needed:* This tells Arachne the minimum line width to attempt drawing. At `50%` of a `0.4mm` nozzle (`0.2mm`), it will trace even very fine SVG lines.
 
     - *Effect:* Higher values skip thin lines. Lower values might generate too many thin paths that overlap poorly.
 
-* **Precision \> Slice gap closing radius:** 0.001 mm
-    - *Why needed:* This controls how aggressively the slicer "heals" tiny gaps in geometry. A very small value (0.001mm) prevents the slicer from merging separate lines that should stay distinct.
+* **Precision > Slice gap closing radius:** `0.001 mm`
+    - *Why needed:* This controls how aggressively the slicer "heals" tiny gaps in geometry. A very small value (`0.001mm`) prevents the slicer from merging separate lines that should stay distinct.
 
     - *Effect:* Larger values cause nearby lines to merge together, losing fine detail in drawings.
 
-* **Precision \> Resolution:** 0.012
+* **Precision > Resolution:** `0.012`
     - *Why needed:* Controls how precisely the slicer follows curves. Lower values create smoother curves with more points.
 
-    - *Effect:* Higher values (e.g., 0.05) would make curves look faceted or polygonal. Too low (e.g., 0.001) generates excessive points and slows both slicing and plotting.
+    - *Effect:* Higher values (e.g., `0.05`) would make curves look faceted or polygonal. Too low (e.g., `0.001`) generates excessive points and slows both slicing and plotting.
 
-* **Precision \> XY Hole Compensation:** -0.075
+* **Precision > XY Hole Compensation:** `-0.075`
     - *Why needed:* Makes internal features (holes, interior shapes) slightly smaller. This compensates for pen width spreading.
 
     - *Effect:* Without compensation, drawn circles appear slightly larger than designed. This shrinks them to match intent.
 
-* **Precision \> XY Contour Compensation:** +0.075
+* **Precision > XY Contour Compensation:** `+0.075`
     - *Why needed:* Makes outer contours slightly larger to compensate for pen width. Results in bolder, more visible outer lines.
 
     - *Effect:* Positive compensation ensures perimeter lines aren't drawn too thin. Adjust based on pen thickness.
 
-* **Ironing:** None (Uncheck all)
+* **Ironing:** `None` (Uncheck all)
     - *Why needed:* Ironing is a 3D printing feature that makes top surfaces smooth by doing extra passes. It's irrelevant for 2D plotting.
 
     - *Effect:* Leaving it enabled would cause the pen to make redundant passes over already-drawn areas.
 
 **B. Strength Settings:**
 
-* **Wall loops:** 1
+* **Wall loops:** `1`
     - *Why needed:* We only want to trace the outline/perimeter of shapes once. Additional walls would create duplicate overlapping lines.
 
-    - *Effect:* Setting to 2+ would draw multiple concentric outlines, wasting ink and making lines appear thicker/darker.
+    - *Effect:* Setting to `2+` would draw multiple concentric outlines, wasting ink and making lines appear thicker/darker.
 
-* **Top shell layers:** 0
-* **Bottom shell layers:** 0
+* **Top shell layers:** `0`
+* **Bottom shell layers:** `0`
     - *Why needed:* Top and bottom shells are solid infill layers for 3D prints. For 2D drawing, we only want the perimeter.
 
     - *Effect:* Non-zero values would cause the slicer to try filling in solid areas, which may or may not be desired depending on your drawing.
 
-* **Sparse Infill Density:** 5-100% (5% for light hatching, 100% for solid fill)
-    - *Why needed:* Controls how much the interior of closed shapes is filled. Start with 5% for slight hatching, increase if you want more coverage. 100% creates fully solid-filled areas but is time-consuming.
+* **Sparse Infill Density:** `5-100%` (`5%` for light hatching, `100%` for solid fill)
+    - *Why needed:* Controls how much the interior of closed shapes is filled. Start with `5%` for slight hatching, increase if you want more coverage. `100%` creates fully solid-filled areas but is time-consuming.
 
-    - *Effect:* 5% creates light cross-hatching. Higher values (20-50%) add more density. 100% fills completely solid. 0% draws only outlines with no interior fill.
+    - *Effect:* `5%` creates light cross-hatching. Higher values (`20-50%`) add more density. `100%` fills completely solid. `0%` draws only outlines with no interior fill.
 
-* **Sparse Infill Pattern:** Rectilinear Aligned (default, looks more natural)
+* **Sparse Infill Pattern:** `Rectilinear Aligned` (default, looks more natural)
     - *Why needed:* Rectilinear Aligned creates clean parallel lines aligned with the object's orientation, producing a more natural appearance for filled shapes.
 
     - *Effect:* Aligned lines follow the object's geometry naturally. Regular Rectilinear works but may appear less organic. Other patterns (honeycomb, gyroid) create complex infill that may not be aesthetically desired for drawings.
 
 **C. Speed Settings:**
 
-* **Outer Wall:** 300 - 400 mm/s (For Stabilo)
+* **Outer Wall:** `300 - 400 mm/s` (For Stabilo)
     - *Why needed:* The Stabilo pen tip can handle high speeds without skipping or lifting off the paper. Fast speeds dramatically reduce drawing time.
 
-    - *Effect:* Lower speeds (< 200mm/s) work but take much longer. Higher speeds (> 450mm/s) may cause the pen to skip or the spring mechanism to lose contact with paper. Different pen types need different speeds (e.g., Posca requires 30-40mm/s).
+    - *Effect:* Lower speeds (< `200mm/s`) work but take much longer. Higher speeds (> `450mm/s`) may cause the pen to skip or the spring mechanism to lose contact with paper. Different pen types need different speeds (e.g., Posca requires `30-40mm/s`).
 
-* **Inner Wall:** 300 - 400 mm/s
+* **Inner Wall:** `300 - 400 mm/s`
     - *Why needed:* Should match outer wall speed for consistent line quality throughout the drawing.
 
     - *Effect:* Mismatched speeds would create visible differences between different parts of the drawing.
 
 **D. Other Essential Settings:**
 
-* **Support \> Enable Support:** Unchecked (Disabled)
+* **Support > Enable Support:** `Unchecked` (Disabled)
     - *Why needed:* Support structures are for 3D prints with overhangs. They have no meaning for 2D drawings.
 
     - *Effect:* If enabled, the slicer might generate random support geometry that would be drawn as unwanted lines on your paper.
 
-* **Others \> Brim Type:** No brim (Disabled)
+* **Others > Brim Type:** `No brim` (Disabled)
     - *Why needed:* A brim is an extra outline around prints to improve bed adhesion. For plotting, it would draw unwanted border lines around your artwork.
 
     - *Effect:* Enabled brims waste paper space and add lines you didn't intend in your design.
 
-* **Others \> Skirt Loops:** 0 (Disabled)
+* **Others > Skirt Loops:** `0` (Disabled)
     - *Why needed:* A skirt is a test outline drawn before the actual print starts. For plotting, this would draw test lines on your paper.
 
     - *Effect:* Non-zero values make the pen draw loops around your design before starting the actual drawing, wasting paper and ink.
@@ -434,8 +434,8 @@ M400 U1 ; PAUSE FOR PEN ATTACHMENT
 
 **Goal:** Ensure the printer moves correctly and pauses without crashing, with minimal hardware attached.
 
-1. **Prepare File:** Slice a simple SVG (like a small square) using your new profiles.  
-   * **IMPORTANT:** Select the object, click **Scale**, unlock the "Uniform Scale" box, and set **Z (Size)** to **0.1 mm**. This ensures exactly 1 layer is generated.  
+1. **Prepare File:** Slice a simple SVG (like a small square) using your new profiles.
+   * **IMPORTANT:** Select the object, click **Scale**, unlock the "Uniform Scale" box, and set **Z (Size)** to **`0.1 mm`**. This ensures exactly 1 layer is generated.  
    * **Placement:**  
      * You will see a greyed-out zone on the bed (from the Excluded Bed Area setting).  
      * **Place your object in the valid (non-grey) area.**  
@@ -515,8 +515,8 @@ M400 U1 ; PAUSE FOR PEN ATTACHMENT
 
 | Problem | Solution |
 | :---- | :---- |
-| **Slicer generates 50+ layers** | Unlock scale in slicer and set object Z-height to 0.1mm (matching your layer height). |
-| **Printer pauses then immediately resumes** | Your G-code is missing U1. Ensure it says M400 U1. |
-| **Pen drags during travel** | Z-Hop is not working. Check "Z-Hop Type" is **Normal** (not Slope/Spiral). |
-| **Lines ignored by slicer** | Enable **Arachne** wall generator and set Min Wall Width to **0.2mm**. |
+| **Slicer generates 50+ layers** | Unlock scale in slicer and set object Z-height to `0.1mm` (matching your layer height). |
+| **Printer pauses then immediately resumes** | Your G-code is missing `U1`. Ensure it says `M400 U1`. |
+| **Pen drags during travel** | Z-Hop is not working. Check "Z-Hop Type" is **`Normal`** (not Slope/Spiral). |
+| **Lines ignored by slicer** | Enable **`Arachne`** wall generator and set Min Wall Width to **`0.2mm`**. |
 
