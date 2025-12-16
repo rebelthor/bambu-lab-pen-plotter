@@ -65,12 +65,10 @@ We must configure the slicer before touching the printer to ensure it doesn't he
 
     - *Effect:* Disabling all fans ensures stable, vibration-free operation. Running fans would introduce micro-vibrations that show up as wavy or inconsistent lines.
 
-* **Advanced (Optional but Recommended):**
-  * **Standby Temperature:** 0°C
-  * **Vitrification Temperature (Soften Temp):** 0°C
-    - *Why needed:* These settings prevent any thermal management behaviors designed for plastic printing that aren't relevant for pen plotting.
+* **Max volumetric speed:** 22 mm³/s
+    - *Why needed:* This setting limits how fast the firmware thinks material is being extruded. Since we're using flow ratio 0.01, this effectively caps movement speeds.
 
-    - *Effect:* Keeps the system from performing unnecessary temperature adjustments during long plots.
+    - *Effect:* This value works with the flow ratio to prevent firmware from limiting speeds. Higher values have minimal impact since flow is near-zero.
 
 ### **2\. Create the "Plotter" Printer Profile**
 
@@ -80,7 +78,6 @@ We must configure the slicer before touching the printer to ensure it doesn't he
 #### **A. Extruder Settings**
 
 * **Extruder Tab:**
-  * **Z-Hop when retracting:** Enabled (Checked)
   * **Z-Hop Type:** Normal (90° vertical lift)
       - *Why needed:* "Normal" Z-hop lifts the toolhead straight up vertically before travel moves. This is critical because the pen must lift completely clear of the paper to avoid dragging ink between drawing segments.
 
@@ -95,11 +92,6 @@ We must configure the slicer before touching the printer to ensure it doesn't he
       - *Why needed:* Bambu Lab firmware requires a non-zero retraction value to enable Z-hop. Since we're not extruding plastic, the actual retraction distance is irrelevant, but it must be > 0 to unlock the Z-hop feature.
 
       - *Effect:* A value of 0 would disable Z-hop entirely. The 0.01mm value is the minimum needed to activate the feature without causing the extruder motor to work.
-
-  * **Max volumetric speed:** 22 mm³/s
-      - *Why needed:* This setting limits how fast the firmware thinks material is being extruded. Since we're using flow ratio 0.01, this effectively caps movement speeds.
-
-      - *Effect:* This value works with the flow ratio to prevent firmware from limiting speeds. Higher values have minimal impact since flow is near-zero.
 
 #### **B. Set Z-Offset (Safety Gap)**
 
@@ -388,25 +380,26 @@ M400 U1 ; PAUSE FOR PEN ATTACHMENT
 
 **B. Strength Settings:**
 
-* **Walls:** 1
+* **Wall loops:** 1
     - *Why needed:* We only want to trace the outline/perimeter of shapes once. Additional walls would create duplicate overlapping lines.
 
     - *Effect:* Setting to 2+ would draw multiple concentric outlines, wasting ink and making lines appear thicker/darker.
 
-* **Top/Bottom Shells:** 0
+* **Top shell layers:** 0
+* **Bottom shell layers:** 0
     - *Why needed:* Top and bottom shells are solid infill layers for 3D prints. For 2D drawing, we only want the perimeter.
 
     - *Effect:* Non-zero values would cause the slicer to try filling in solid areas, which may or may not be desired depending on your drawing.
 
-* **Sparse Infill Density:** 0% (unless filling a solid shape)
-    - *Why needed:* Infill is only needed if you want to fill the interior of closed shapes with a pattern. 0% draws only outlines.
+* **Sparse Infill Density:** 5-100% (5% for light hatching, 100% for solid fill)
+    - *Why needed:* Controls how much the interior of closed shapes is filled. Start with 5% for slight hatching, increase if you want more coverage. 100% creates fully solid-filled areas but is time-consuming.
 
-    - *Effect:* Increasing this adds cross-hatching inside closed shapes. Use 100% with rectilinear pattern if you want solid-filled areas.
+    - *Effect:* 5% creates light cross-hatching. Higher values (20-50%) add more density. 100% fills completely solid. 0% draws only outlines with no interior fill.
 
-* **Sparse Infill Pattern:** Rectilinear (or Rectilinear Aligned)
-    - *Why needed:* If you do enable infill for filled shapes, rectilinear creates clean parallel lines that look intentional.
+* **Sparse Infill Pattern:** Rectilinear Aligned (default, looks more natural)
+    - *Why needed:* Rectilinear Aligned creates clean parallel lines aligned with the object's orientation, producing a more natural appearance for filled shapes.
 
-    - *Effect:* Other patterns (honeycomb, gyroid) create complex infill that may not be aesthetically desired for drawings.
+    - *Effect:* Aligned lines follow the object's geometry naturally. Regular Rectilinear works but may appear less organic. Other patterns (honeycomb, gyroid) create complex infill that may not be aesthetically desired for drawings.
 
 **C. Speed Settings:**
 
