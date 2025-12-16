@@ -13,6 +13,30 @@ This process involves modifying printer "G-code", disabling safety sensors, and 
 
 **The author of this guide accepts no responsibility for damage to your printer.**
 
+---
+
+## **Quick Reference (For Experienced Users)**
+
+If you've done this before, here's the condensed checklist:
+
+**Profiles Setup:**
+1. **Filament:** Flow `0.01`, Temps `180°C`/`25°C`, Fans off, Max volumetric `22 mm³/s`
+2. **Printer:** Z-Hop `Normal`/`3.0mm`, Retraction `0.01mm`, Z-Offset `17.0mm`, Excluded area `0x0, 258x0, 258x55, 48x55, 48x258, 0x258`, Custom G-code with pauses
+3. **Process:** Layer `0.10mm`, `Arachne`, Min wall `50%`, Walls `1`, Shells `0`, Infill `5-100%` `Rectilinear Aligned`, Speed `300-400mm/s`, Support/Brim/Skirt off
+4. Activate all three profiles before slicing
+
+**File Prep:**
+- Import SVG → Unlock uniform scale → Set Z to `0.1mm` → Place in safe zone → Slice
+
+**Test Sequence:**
+- Phase 2: Start empty → Pause → Attach base only → Resume → Remove at end
+- Phase 3: Start empty → Pause → Attach full assembly (no pen) → Resume → Check clearances → Remove at end
+- Phase 4: Start empty → Pause → Attach assembly + pen (tip high) → Resume → Live adjust pen depth during print → Remove at end
+
+**For detailed explanations, see the full guide below.**
+
+---
+
 ## **Prerequisites: Printed Parts & Tools**
 
 Before starting the testing phases, ensure you have these files printed from the [Falu Modular System on MakerWorld](https://makerworld.com/en/models/2029113-modular-system-for-a1-p1-x1-series):
@@ -34,11 +58,13 @@ We must configure the slicer before touching the printer to ensure it doesn't he
 
 *It is critical to create a specific filament profile to prevent the printer from trying to push plastic.*
 
-1. Open **Orca Slicer**.  
-2. Edit a **Generic PLA** profile.  
-3. **Save As:** Plotter Filament.
+1. Open **Orca Slicer**.
+2. In the top toolbar, click the **Filament** dropdown.
+3. Select a **Generic PLA** profile, then click the **Edit** icon (pencil).
+4. **Modify the following settings** (listed below).
+5. When done, click **Save** and choose **Save As** → name it **"Plotter Filament"**.
 
-**Settings:**
+**Settings to Change:**
 
 * **Flow Ratio:** `0.01`
     - *Why needed:* The plotter uses a pen instead of extruding plastic. This near-zero value prevents the extruder motor from attempting to push filament while still keeping the extrusion system "active" in firmware.
@@ -72,8 +98,10 @@ We must configure the slicer before touching the printer to ensure it doesn't he
 
 ### **2\. Create the "Plotter" Printer Profile**
 
-1. Edit your default "Bambu Lab P1S 0.4 nozzle" profile.  
-2. **Save As:** P1S Plotter (Stabilo).
+1. In the top toolbar, click the **Printer** dropdown.
+2. Select your **"Bambu Lab P1S 0.4 nozzle"** profile, then click the **Edit** icon (pencil).
+3. **Modify the following settings** (listed below in sections A-D).
+4. When done, click **Save** and choose **Save As** → name it **"P1S Plotter (Stabilo)"**.
 
 #### **A. Extruder Settings**
 
@@ -93,14 +121,15 @@ We must configure the slicer before touching the printer to ensure it doesn't he
 
       - *Effect:* A value of `0` would disable Z-hop entirely. The `0.01mm` value is the minimum needed to activate the feature without causing the extruder motor to work.
 
-#### **B. Set Z-Offset (Safety Gap)**
+#### **B. Set Z-Offset (Initial Starting Point)**
 
 * **Extruder/Print Options Tab:**
-  * **Z-Offset:** `17.0 mm`
+  * **Z-Offset:** `17.0 mm` (starting value - you will fine-tune this later)
       - *Why needed:* The pen tip extends approximately 17mm below where the nozzle normally sits. By adding this offset, we tell the printer to keep the "nozzle" (actually the pen holder) 17mm higher than it thinks, which places the actual pen tip at the correct drawing height.
 
       - *Effect:* This offset "tricks" the firmware into positioning the pen correctly. Without it, the toolhead would try to position the nozzle at paper level, driving the pen tip 17mm into the bed and damaging both the pen and build plate.
-    *Tuning: If lines are too faint (pen barely touching), decrease the offset slightly (e.g., `16.5mm`). If the pen presses too hard, increase it (e.g., `17.5mm`).*
+
+      - *Calibration Note:* `17.0mm` is a safe starting point. You will refine this value during Phase 4 (Pen Calibration) using either live adjustments OR by changing this setting and re-slicing. See **"Z-Offset Calibration Guide"** section below for the full process.
 
 #### **C. Set Excluded Bed Area (Safety Zones)**
 
@@ -112,7 +141,26 @@ We must configure the slicer before touching the printer to ensure it doesn't he
   `0x0, 258x0, 258x55, 48x55, 48x258, 0x258`
 
 * *Effect: The slicer will display a greyed-out zone on the bed where objects cannot be placed. This prevents you from accidentally positioning drawings in areas where the pen module would crash into the printer structure.*
-*   - *What the coordinates mean:* This creates an L-shaped exclusion zone covering the right edge (29mm margin) and back edge (41mm margin) of the bed, ensuring the module stays within safe physical bounds.
+*   - *What the coordinates mean:* This creates an L-shaped exclusion zone in the bottom-left corner of the bed, ensuring the module stays within safe physical bounds.
+
+**Visual representation of the safe zone (top-down view):**
+```
+    BACK (Y=258mm)
+    ╔══╦═════════════════════════════╗
+    ║XX║                             ║
+    ║XX║                             ║
+    ║XX║                             ║
+    ║XX║     SAFE DRAWING ZONE       ║ RIGHT
+    ║XX║     (Place objects here)    ║ (X=258mm)
+    ║XX║                             ║
+    ║XX║                             ║
+    ╠══╣                             ║
+    ║XXXXXXXXX EXCLUDED ZONE XXXXXXXX║
+    ╚════════════════════════════════╝
+    FRONT (Y=0mm)
+    LEFT (X=0mm)
+```
+The greyed-out L-shaped zone (marked with X) is the excluded area where the pen module could collide with the printer frame.
 
 #### **D. Modify Machine G-code (The Logic)**
 
@@ -328,8 +376,10 @@ M400 U1 ; PAUSE FOR PEN ATTACHMENT
 ```
 ### **3\. Create the "Plotter" Process Profile**
 
-1. Edit a "0.20mm Standard" profile.  
-2. **Save As:** Plotter Process.
+1. In the top toolbar, click the **Process** dropdown.
+2. Select a **"0.20mm Standard"** profile, then click the **Edit** icon (pencil).
+3. **Modify the following settings** (listed below in sections A-D).
+4. When done, click **Save** and choose **Save As** → name it **"Plotter Process"**.
 
 **A. Quality Settings:**
 
@@ -430,36 +480,73 @@ M400 U1 ; PAUSE FOR PEN ATTACHMENT
 
     - *Effect:* Non-zero values make the pen draw loops around your design before starting the actual drawing, wasting paper and ink.
 
-## **Phase 2: Test the Base Mount (Dry Run)**
+### **4\. Activate Your Plotter Profiles**
 
-**Goal:** Ensure the printer moves correctly and pauses without crashing, with minimal hardware attached.
+**CRITICAL:** Before slicing any files, you must activate all three custom profiles:
 
-1. **Prepare File:** Slice a simple SVG (like a small square) using your new profiles.
-   * **IMPORTANT:** Select the object, click **Scale**, unlock the "Uniform Scale" box, and set **Z (Size)** to **`0.1 mm`**. This ensures exactly 1 layer is generated.  
-   * **Placement:**  
-     * You will see a greyed-out zone on the bed (from the Excluded Bed Area setting).  
-     * **Place your object in the valid (non-grey) area.**  
-     * This placement correlates to the safe physical area on your paper.  
-2. **⚠️ START PRINT EMPTY ⚠️:** Ensure the toolhead is completely **empty** (NO mounts, NO pen).  
-3. **Wait for Start Pause:**  
-   * The printer will Home and Level.  
-   * It will then **PAUSE**.  
-4. **MANUAL ACTION:**  
-   * Use the printer screen controls to **move the toolhead forward (Y-axis)** until you can reach it comfortably.  
-5. **INSTALL BASE:**  
-   * Clip **only** the Head-Mount-V1 onto the toolhead.  
-6. **Resume:**  
-   * Press Resume on the screen.  
-   * Printer should "ghost draw" the square in the air.  
-7. **End Pause:**  
-   * Printer will lift up and **PAUSE**.  
-   * Use screen controls to **move toolhead forward**.  
-   * **⚠️ REMOVE THE BASE ⚠️**  
-   * Press Resume to finish.
+1. In the top toolbar, click the **Filament** dropdown → select **"Plotter Filament"**.
+2. Click the **Printer** dropdown → select **"P1S Plotter (Stabilo)"**.
+3. Click the **Process** dropdown → select **"Plotter Process"**.
 
-## **Phase 3: Test Full Assembly (No Pen)**
+You should now see all three profile names displayed in the toolbar. These will remain active until you change them.
 
-**Goal:** Ensure the full plastic assembly fits and clears the frame.
+### **5\. Import and Prepare an SVG File**
+
+Before testing, you need to prepare a simple drawing file:
+
+1. **Create or find a simple SVG:**
+   - Create a basic shape (square, circle) in any vector program, OR
+   - Download a simple SVG from the web
+   - Start small (30-50mm size) for testing
+
+2. **Import SVG into Orca Slicer:**
+   - Drag and drop the `.svg` file into the 3D viewport, OR
+   - Click **File → Import → Import 3D Model** and select your SVG
+   - The SVG will appear as a flat 3D object on the build plate
+
+3. **CRITICAL: Set Z-Height to Match Layer Height:**
+   - Select the imported object (click on it)
+   - In the right panel, click the **Scale** icon
+   - **UNCHECK** the "Uniform Scaling" lock icon
+   - Manually set **Z (Size)** to **`0.1 mm`** (matching your Layer Height setting)
+   - This ensures exactly 1 layer is generated instead of 50+ layers
+
+4. **Position the object:**
+   - You will see a **greyed-out L-shaped exclusion zone** on the bed (from the Excluded Bed Area setting)
+   - **Drag your object into the valid (non-grey) area** - this is the safe zone where the pen module won't collide with the printer frame
+   - Position it away from edges: at least 30mm from right edge, 45mm from back edge
+
+5. **Slice the file:**
+   - Click **Slice Plate** button (top right)
+   - Orca Slicer will generate the drawing path
+   - Verify in the preview that you see exactly 1 layer, not multiple layers
+   - **Do NOT send to printer yet** - you will do this in the testing phases below
+
+## **Phase 2: Test the Base Mount Only (Verify Pauses Work)**
+
+**Goal:** Verify that the printer pauses correctly and the base mount clips on securely, without risking collision from protruding parts.
+
+1. **Send your prepared file to the printer** (from step 5 above) using network send or SD card/USB.
+2. **⚠️ START PRINT EMPTY ⚠️:** Start the print job with the toolhead completely **empty** (NO mounts, NO pen).
+3. **Wait for Start Pause:**
+   - The printer will Home and Level.
+   - It will then **PAUSE**.
+4. **MANUAL ACTION:**
+   - Use the printer screen controls to **move the toolhead forward (Y-axis)** until you can reach it comfortably.
+5. **INSTALL BASE:**
+   - Clip **only** the Head-Mount-V1 onto the toolhead.
+6. **Resume:**
+   - Press Resume on the screen.
+   - Printer should "ghost draw" the square in the air.
+7. **End Pause:**
+   - Printer will lift up and **PAUSE**.
+   - Use screen controls to **move toolhead forward**.
+   - **⚠️ REMOVE THE BASE ⚠️**
+   - Press Resume to finish.
+
+## **Phase 3: Test Full Assembly Without Pen (Verify Clearance)**
+
+**Goal:** Ensure the spring module and pen guide don't collide with the printer frame, door, or fans during movement. This tests the excluded bed area and physical clearances.
 
 1. **Assemble:** Assemble the Spring Module and Guide Stabilo onto the Base Mount *separately* (in your hands).  
 2. **⚠️ START PRINT EMPTY ⚠️:** Ensure toolhead is **empty**.  
@@ -506,10 +593,38 @@ M400 U1 ; PAUSE FOR PEN ATTACHMENT
    * *Warning:* If you do not remove the assembly now, the printer may lower itself at the very end of the script and crush the pen against the bed.  
    * **ACTION 3:** Press **RESUME** to finish.
 
-### **Fine Tuning**
+## **Z-Offset Calibration Guide**
 
-* **Too much pressure?** (Pen tip smashing): Increase **Z-Offset** in slicer (e.g., 17.0 \-\> 17.5) OR lift the pen slightly higher in the holder.  
-* **Too little pressure?** (Skipping lines): Decrease **Z-Offset** in slicer (e.g., 17.0 \-\> 16.5) OR push pen deeper manually at the start pause.
+The Z-offset value (`17.0mm` starting point) determines pen pressure on paper. You have **two methods** to calibrate:
+
+### **Method 1: Live Adjustment During Print (Recommended for First Time)**
+This is the iterative process described in Phase 4 above:
+1. Start with pen tip barely protruding from holder (too high initially)
+2. Begin print, observe if pen touches paper
+3. Pause → push pen down 1-2mm → resume
+4. Repeat until pen draws cleanly AND lifts clear during travels
+5. Note the final pen position in the holder for future prints
+
+**Pros:** Immediate feedback, no re-slicing needed
+**Cons:** Requires manual adjustment each print
+
+### **Method 2: Adjust Z-Offset Setting in Slicer (For Repeatable Results)**
+Once you understand the correct pen depth:
+1. Edit your **Printer Profile** → **Extruder/Print Options Tab**
+2. Adjust **Z-Offset** value:
+   - **Pen pressing too hard?** Increase offset (e.g., `17.0` → `17.5mm`)
+   - **Pen too light/skipping?** Decrease offset (e.g., `17.0` → `16.5mm`)
+3. Save the profile
+4. Re-slice your file
+5. Print with pen installed at consistent depth in holder
+
+**Pros:** Repeatable, no manual adjustment needed each print
+**Cons:** Requires re-slicing after each change
+
+### **Symptoms Guide**
+- **Lines too faint or missing:** Pen not touching paper → decrease Z-offset OR push pen deeper
+- **Pen pressing hard, ink bleeding:** Too much pressure → increase Z-offset OR pull pen higher
+- **Pen drags during travels:** Z-hop not lifting high enough → check "Z-Hop Type" is `Normal`, increase "Z-Hop Height"
 
 ## **Troubleshooting**
 
