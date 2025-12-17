@@ -170,7 +170,7 @@ Go to the **Machine G-code** tab.
 **Start G-code:**
 
 * Replace the **entire block** with the following code.
-* *What this does:* The modified start sequence runs through the normal printer initialization (homing, bed leveling, heating), then forces the bed down 50mm and parks the toolhead at the front-center position. The final `M400 U1` command triggers a pause, during which you can safely attach the pen module without risk of collision.*
+* *What this does:* The modified start sequence runs through the normal printer initialization (homing, bed leveling, heating), then forces the bed down 50mm. The final `M400 U1` command triggers a pause, during which you can safely attach the pen module without risk of collision.*
 ```
 ;===== machine: P1S ====================
 ;===== date: 20240919 ==================
@@ -356,7 +356,6 @@ M106 P3 S0 ; turn off chamber fan
 M975 S1 ; turn on mech mode supression
 G90 ; Ensure absolute coordinates
 G1 Z50 F3000 ; *** FORCE BED DOWN ***
-G1 X128 Y50 F6000 ; *** PARK HEAD FRONT-CENTER ***
 M83
 T1000
 
