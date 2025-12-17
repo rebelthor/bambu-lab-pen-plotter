@@ -22,7 +22,7 @@ If you've done this before, here's the condensed checklist:
 **Profiles Setup:**
 1. **Filament:** Flow `0.01`, Temps `180°C`/`1°C`, Fans off, Max volumetric `22 mm³/s`, Set all bed types to `1°C`
 2. **Printer:** Z-Hop `Normal`/`3.0mm`, Retraction `0.01mm`, Z-Offset `17.0mm`, Excluded area `0x0, 258x0, 258x55, 48x55, 48x258, 0x258`, Custom G-code with pauses
-3. **Process:** Layer `0.10mm`, `Arachne`, Min wall `50%`, Walls `1`, Shells `0`, Infill `0%` or `80-100%` `Rectilinear Aligned`, First layer speeds `300-400mm/s` (outer/inner wall + infill), Support/Brim/Skirt off
+3. **Process:** Layer `0.10mm`, `Arachne`, Min wall `50%`, Walls `1`, Shells `0`, Infill `0%` or `80-100%` `Rectilinear Aligned`, First layer speed `300-400mm/s`, First layer acceleration `5000 mm/s²`, Support/Brim/Skirt off
 4. Activate all three profiles before slicing
 
 **File Prep:**
@@ -455,22 +455,17 @@ M400 U1 ; PAUSE FOR PEN ATTACHMENT
 
 Since the entire drawing is a single "first layer", we only need to configure first layer speeds:
 
-* **First layer > Outer wall:** `300 - 400 mm/s` (For Stabilo)
+* **Speed > First layer:** `300 - 400 mm/s` (For Stabilo)
     - *Why needed:* The Stabilo pen tip can handle high speeds without skipping or lifting off the paper. Fast speeds dramatically reduce drawing time. The default `50mm/s` is for 3D print bed adhesion, which doesn't apply to pen plotting.
 
     - *Effect:* Lower speeds (< `200mm/s`) work but take much longer. Higher speeds (> `450mm/s`) may cause the pen to skip or the spring mechanism to lose contact with paper. Different pen types need different speeds (e.g., Posca requires `30-40mm/s`).
 
-* **First layer > Inner wall:** `300 - 400 mm/s`
-    - *Why needed:* Should match outer wall speed for consistent line quality throughout the drawing.
+* **Acceleration > First layer:** `5000 mm/s²`
+    - *Why needed:* Acceleration determines how quickly the printer reaches target speed. Low acceleration (default ~500-1000 mm/s²) means the printer spends most of its time accelerating/decelerating and never actually reaches 300mm/s on short line segments. Higher acceleration ensures the pen reaches full speed quickly.
 
-    - *Effect:* Mismatched speeds would create visible differences between different parts of the drawing.
+    - *Effect:* Too low (<1000 mm/s²) makes drawing very slow even with high speed settings. Too high (>8000 mm/s²) may cause the pen to skip or lose contact. `5000 mm/s²` provides a good balance of speed and pen control.
 
-* **First layer > Infill:** `300 - 400 mm/s`
-    - *Why needed:* If using infill to fill shapes, match the wall speeds to keep drawing time reasonable.
-
-    - *Effect:* Default slow infill speed would make filled areas take much longer than outlines.
-
-**Note:** You can leave "Other layers" speed settings at defaults since your drawing only has one layer.
+**Note:** You can leave "Other layers" speed and acceleration settings at defaults since your drawing only has one layer.
 
 **D. Other Essential Settings:**
 
