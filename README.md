@@ -20,9 +20,9 @@ This process involves modifying printer "G-code", disabling safety sensors, and 
 If you've done this before, here's the condensed checklist:
 
 **Profiles Setup:**
-1. **Filament:** Flow `0.01`, Temps `180°C`/`25°C`, Fans off, Max volumetric `22 mm³/s`
+1. **Filament:** Flow `0.01`, Temps `180°C`/`1°C`, Fans off, Max volumetric `22 mm³/s`, Set all bed types to `1°C`
 2. **Printer:** Z-Hop `Normal`/`3.0mm`, Retraction `0.01mm`, Z-Offset `17.0mm`, Excluded area `0x0, 258x0, 258x55, 48x55, 48x258, 0x258`, Custom G-code with pauses
-3. **Process:** Layer `0.10mm`, `Arachne`, Min wall `50%`, Walls `1`, Shells `0`, Infill `5-100%` `Rectilinear Aligned`, Speed `300-400mm/s`, Support/Brim/Skirt off
+3. **Process:** Layer `0.10mm`, `Arachne`, Min wall `50%`, Walls `1`, Shells `0`, Infill `0%` or `80-100%` `Rectilinear Aligned`, First layer speeds `300-400mm/s` (outer/inner wall + infill), Support/Brim/Skirt off
 4. Activate all three profiles before slicing
 
 **File Prep:**
@@ -78,10 +78,10 @@ We must configure the slicer before touching the printer to ensure it doesn't he
 
     - *Effect:* This temperature is high enough to prevent firmware errors but low enough that no plastic will ooze or cause thermal issues. Lower temperatures would trigger "cold extrusion" errors and halt the print.
 
-* **Bed Temperature:** `25°C`
-    - *Why needed:* Room temperature prevents any unnecessary heating of the bed, saving energy and avoiding thermal expansion.
+* **Bed Temperature:** `1°C` (for all bed type profiles: Cool Plate, Engineering Plate, High Temp Plate, Textured PEI Plate)
+    - *Why needed:* Setting to `1°C` (minimum value) prevents heating regardless of which build plate is selected in the slicer. This saves energy and avoids thermal expansion of paper.
 
-    - *Effect:* Higher temperatures would waste power and could warp paper. The bed doesn't need heating since we're drawing, not printing.
+    - *Effect:* Higher temperatures would waste power and could warp paper. The bed doesn't need heating since we're drawing, not printing. `0°C` is not selectable in Orca Slicer, so `1°C` is the effective "off" setting.
 
 * **Cooling Tab:**
   * **Part Cooling Fan:** `0%` (Min) / `0%` (Max)
@@ -441,10 +441,10 @@ M400 U1 ; PAUSE FOR PEN ATTACHMENT
 
     - *Effect:* Non-zero values would cause the slicer to try filling in solid areas, which may or may not be desired depending on your drawing.
 
-* **Sparse Infill Density:** `5-100%` (`5%` for light hatching, `100%` for solid fill)
-    - *Why needed:* Controls how much the interior of closed shapes is filled. Start with `5%` for slight hatching, increase if you want more coverage. `100%` creates fully solid-filled areas but is time-consuming.
+* **Sparse Infill Density:** `0%` or `80-100%`
+    - *Why needed:* Controls how much the interior of closed shapes is filled. Use `0%` for outline-only drawings (no fill). Use `80-100%` for actually filled areas - anything below 50% will look very sparse and won't create a solid appearance.
 
-    - *Effect:* `5%` creates light cross-hatching. Higher values (`20-50%`) add more density. `100%` fills completely solid. `0%` draws only outlines with no interior fill.
+    - *Effect:* `0%` draws only outlines with no interior fill. `80%` creates dense hatching that appears nearly solid. `100%` fills completely solid but is time-consuming. Values like `5-20%` create scattered lines that don't look filled.
 
 * **Sparse Infill Pattern:** `Rectilinear Aligned` (default, looks more natural)
     - *Why needed:* Rectilinear Aligned creates clean parallel lines aligned with the object's orientation, producing a more natural appearance for filled shapes.
@@ -453,15 +453,24 @@ M400 U1 ; PAUSE FOR PEN ATTACHMENT
 
 **C. Speed Settings:**
 
-* **Outer Wall:** `300 - 400 mm/s` (For Stabilo)
-    - *Why needed:* The Stabilo pen tip can handle high speeds without skipping or lifting off the paper. Fast speeds dramatically reduce drawing time.
+Since the entire drawing is a single "first layer", we only need to configure first layer speeds:
+
+* **First layer > Outer wall:** `300 - 400 mm/s` (For Stabilo)
+    - *Why needed:* The Stabilo pen tip can handle high speeds without skipping or lifting off the paper. Fast speeds dramatically reduce drawing time. The default `50mm/s` is for 3D print bed adhesion, which doesn't apply to pen plotting.
 
     - *Effect:* Lower speeds (< `200mm/s`) work but take much longer. Higher speeds (> `450mm/s`) may cause the pen to skip or the spring mechanism to lose contact with paper. Different pen types need different speeds (e.g., Posca requires `30-40mm/s`).
 
-* **Inner Wall:** `300 - 400 mm/s`
+* **First layer > Inner wall:** `300 - 400 mm/s`
     - *Why needed:* Should match outer wall speed for consistent line quality throughout the drawing.
 
     - *Effect:* Mismatched speeds would create visible differences between different parts of the drawing.
+
+* **First layer > Infill:** `300 - 400 mm/s`
+    - *Why needed:* If using infill to fill shapes, match the wall speeds to keep drawing time reasonable.
+
+    - *Effect:* Default slow infill speed would make filled areas take much longer than outlines.
+
+**Note:** You can leave "Other layers" speed settings at defaults since your drawing only has one layer.
 
 **D. Other Essential Settings:**
 
